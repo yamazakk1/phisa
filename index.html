@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="theme-color" content="#f6f4ef" />
+  <meta name="theme-color" content="#F3F6FC" />
   <meta name="description" content="Тренажёр тестов по физиологии: выбирайте темы, решайте вопросы и повторяйте ошибки." />
   <title>Физа — тренажёр по физиологии</title>
   <link rel="icon" href="favicon.svg" type="image/svg+xml" />
@@ -32,6 +32,7 @@
             <div><span class="step-number">01 / ВЫБОР</span><h2>Темы для колоды</h2></div>
             <div class="selection-actions"><button id="selectAllButton" class="link-button" type="button">Выбрать все</button><span class="divider">/</span><button id="clearAllButton" class="link-button" type="button">Сбросить</button></div>
           </div>
+          <label class="topic-search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.3"/><path d="m15.5 15.5 5 5"/></svg><input id="topicSearch" type="search" placeholder="Найти тему" autocomplete="off" aria-label="Поиск по темам"></label>
           <div class="selection-summary"><span id="selectedSummary">Выбрано 0 тем</span><span id="questionSummary">0 вопросов</span></div>
           <div id="topicList" class="topic-list" aria-label="Темы"></div>
           <div class="setup-footer"><p>В колоде вопросы выбранных тем перемешиваются случайным образом.</p><button id="createButton" class="primary-button" type="button" disabled>Сформировать колоду <span aria-hidden="true">→</span></button></div>
