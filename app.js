@@ -11,9 +11,26 @@ function setTheme(theme) {
   document.documentElement.dataset.theme = theme;
   $('themeButton').setAttribute('aria-pressed', String(theme === 'dark'));
   $('themeButton').setAttribute('aria-label', theme === 'dark' ? 'Включить светлую тему' : 'Включить тёмную тему');
-  $('themeButton').querySelector('.theme-icon').textContent = theme === 'dark' ? '☀' : '☾';
-  $('themeButton').querySelector('.theme-label').textContent = theme === 'dark' ? 'Светлая тема' : 'Тёмная тема';
   document.querySelector('meta[name="theme-color"]').content = theme === 'dark' ? '#0B1020' : '#F3F6FC';
+}
+
+function toggleTheme() {
+  const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+  const apply = () => { localStorage.setItem(THEME_KEY, next); setTheme(next); };
+  if (!document.startViewTransition || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    apply();
+    return;
+  }
+  const button = $('themeButton').getBoundingClientRect();
+  const x = button.left + button.width / 2;
+  const y = button.top + button.height / 2;
+  const radius = Math.ceil(Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y)));
+  document.documentElement.style.setProperty('--reveal-x', `${x}px`);
+  document.documentElement.style.setProperty('--reveal-y', `${y}px`);
+  document.documentElement.style.setProperty('--reveal-radius', `${radius}px`);
+  document.documentElement.classList.add('theme-switching');
+  const transition = document.startViewTransition(apply);
+  transition.finished.finally(() => document.documentElement.classList.remove('theme-switching'));
 }
 
 function save() {
@@ -234,7 +251,7 @@ async function init() {
   const savedTheme = localStorage.getItem(THEME_KEY);
   setTheme(savedTheme === 'light' || savedTheme === 'dark' ? savedTheme : window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
   window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (event) => { if (!localStorage.getItem(THEME_KEY)) setTheme(event.matches ? 'dark' : 'light'); });
-  $('themeButton').addEventListener('click', () => { const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'; localStorage.setItem(THEME_KEY, next); setTheme(next); });
+  $('themeButton').addEventListener('click', toggleTheme);
   $('guideButton').addEventListener('click', () => $('guideDialog').showModal());
   $('closeGuideButton').addEventListener('click', () => $('guideDialog').close());
   $('guideDialog').addEventListener('click', (event) => { if (event.target === $('guideDialog')) $('guideDialog').close(); });
