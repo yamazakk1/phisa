@@ -1,10 +1,20 @@
 const STORAGE_KEY = 'phisa-deck-v1';
+const THEME_KEY = 'phisa-theme-v1';
 const $ = (id) => document.getElementById(id);
 const escapeHTML = (value) => String(value).replace(/[&<>"']/g, (char) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
 
 let topics = [];
 let questions = new Map();
 let state = null;
+
+function setTheme(theme) {
+  document.documentElement.dataset.theme = theme;
+  $('themeButton').setAttribute('aria-pressed', String(theme === 'dark'));
+  $('themeButton').setAttribute('aria-label', theme === 'dark' ? 'Включить светлую тему' : 'Включить тёмную тему');
+  $('themeButton').querySelector('.theme-icon').textContent = theme === 'dark' ? '☀' : '☾';
+  $('themeButton').querySelector('.theme-label').textContent = theme === 'dark' ? 'Светлая тема' : 'Тёмная тема';
+  document.querySelector('meta[name="theme-color"]').content = theme === 'dark' ? '#141d22' : '#f6f7f4';
+}
 
 function save() {
   if (state) localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
@@ -90,9 +100,9 @@ function renderStudy() {
   area.innerHTML = `<article class="question-card"><div class="question-meta"><span>ВОПРОС №${question.id} · ${state.deck === 'new' ? 'НОВАЯ КОЛОДА' : 'ПОВТОР ОШИБОК'}</span><span>Стр. ${question.sourcePage}</span></div><h2>${escapeHTML(question.question)}</h2><p class="question-hint">${isMultiple ? 'Выбери все правильные варианты' : 'Выбери один правильный вариант'}</p><form id="answerForm"><div class="answers">${question.options.map((option) => {
     const chosen = state.chosen.includes(option.id);
     const correct = question.correctAnswers.includes(option.id);
-    const resultClass = state.revealed ? (correct ? ' correct' : chosen ? ' incorrect' : '') : '';
-    return `<label class="answer-option${resultClass}${state.revealed ? ' locked' : ''}"><input type="${isMultiple ? 'checkbox' : 'radio'}" name="answer" value="${option.id}" ${chosen ? 'checked' : ''} ${state.revealed ? 'disabled' : ''}><span>${escapeHTML(option.text)}</span></label>`;
-  }).join('')}</div><div class="question-actions"><span class="feedback ${state.revealed ? state.wasCorrect ? 'good' : 'bad' : ''}" id="feedback">${state.revealed ? state.wasCorrect ? 'Верно!' : `Неверно. Правильный ответ: ${answerText}` : ''}</span><button class="primary-button" type="${state.revealed ? 'button' : 'submit'}" id="answerButton">${state.revealed ? 'Следующий вопрос' : 'Проверить ответ'} <span aria-hidden="true">→</span></button></div></form></article>`;
+    const resultClass = state.revealed ? (correct ? ' correct' : chosen ? ' chosen-wrong' : '') : '';
+    return `<label class="answer-option${resultClass}${state.revealed ? ' locked' : ''}"><input type="${isMultiple ? 'checkbox' : 'radio'}" name="answer" value="${option.id}" ${chosen ? 'checked' : ''} ${state.revealed ? 'disabled' : ''}><span>${escapeHTML(option.text)}</span>${state.revealed && correct ? '<span class="answer-check" aria-hidden="true">✓</span>' : ''}</label>`;
+  }).join('')}</div><div class="question-actions"><span class="feedback ${state.revealed ? state.wasCorrect ? 'good' : 'bad' : ''}" id="feedback">${state.revealed ? state.wasCorrect ? '<span class="feedback-icon" aria-hidden="true">✓</span><span>Верно!</span>' : `<span class="feedback-icon" aria-hidden="true">×</span><span><strong>Неверно</strong><small>Правильный ответ: ${answerText}</small></span>` : ''}</span><button class="primary-button" type="${state.revealed ? 'button' : 'submit'}" id="answerButton">${state.revealed ? 'Следующий вопрос' : 'Проверить ответ'} <span aria-hidden="true">→</span></button></div></form></article>`;
   if (state.revealed) $('answerButton').addEventListener('click', chooseQuestion);
   else $('answerForm').addEventListener('submit', submitAnswer);
 }
@@ -151,6 +161,10 @@ function finishDeck() {
 }
 
 async function init() {
+  const savedTheme = localStorage.getItem(THEME_KEY);
+  setTheme(savedTheme === 'light' || savedTheme === 'dark' ? savedTheme : window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (event) => { if (!localStorage.getItem(THEME_KEY)) setTheme(event.matches ? 'dark' : 'light'); });
+  $('themeButton').addEventListener('click', () => { const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'; localStorage.setItem(THEME_KEY, next); setTheme(next); });
   $('guideButton').addEventListener('click', () => $('guideDialog').showModal());
   $('closeGuideButton').addEventListener('click', () => $('guideDialog').close());
   $('guideDialog').addEventListener('click', (event) => { if (event.target === $('guideDialog')) $('guideDialog').close(); });

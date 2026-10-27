@@ -8,6 +8,7 @@
   <title>Физа — тренажёр по физиологии</title>
   <link rel="icon" href="favicon.svg" type="image/svg+xml" />
   <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="theme.css" />
   <script defer src="app.js"></script>
 </head>
 <body>
@@ -15,7 +16,7 @@
     <header class="site-header">
       <a class="brand" href="./" aria-label="Физа — на главную"><span class="brand-mark">✳</span><span>физа<span class="brand-dot">.</span></span></a>
       <span class="header-note">Тренажёр по физиологии</span>
-      <button id="guideButton" class="text-button" type="button">Как пользоваться <span aria-hidden="true">↗</span></button>
+      <div class="header-actions"><button id="themeButton" class="theme-button" type="button" aria-label="Переключить тему" aria-pressed="false"><span class="theme-icon" aria-hidden="true">☾</span><span class="theme-label">Тёмная тема</span></button><button id="guideButton" class="text-button" type="button">Как пользоваться <span aria-hidden="true">↗</span></button></div>
     </header>
 
     <main>
