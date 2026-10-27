@@ -1,0 +1,310 @@
+[
+  {
+    "file": "01_membrany_formy_transporta.json",
+    "topic": "Мембраны, формы транспорта",
+    "total": 18,
+    "single": 11,
+    "multiple": 7
+  },
+  {
+    "file": "02_retseptory.json",
+    "topic": "Рецепторы",
+    "total": 19,
+    "single": 6,
+    "multiple": 13
+  },
+  {
+    "file": "03_kletka_tkani.json",
+    "topic": "Клетка, ткани",
+    "total": 23,
+    "single": 13,
+    "multiple": 10
+  },
+  {
+    "file": "04_fiziologicheskie_osnovy_anatomii_oporno_dvigatel_nogo_apparata.json",
+    "topic": "Физиологические основы анатомии опорно-двигательного аппарата",
+    "total": 86,
+    "single": 40,
+    "multiple": 46
+  },
+  {
+    "file": "05_fiziologicheskie_osnovy_anatomii_dykhatel_noi_sistemy.json",
+    "topic": "Физиологические основы анатомии дыхательной системы",
+    "total": 11,
+    "single": 3,
+    "multiple": 8
+  },
+  {
+    "file": "06_fiziologicheskie_osnovy_anatomii_zhkt.json",
+    "topic": "Физиологические основы анатомии ЖКТ",
+    "total": 39,
+    "single": 23,
+    "multiple": 16
+  },
+  {
+    "file": "07_fiziologicheskie_osnovy_anatomii_vydelitel_noi_sistemy.json",
+    "topic": "Физиологические основы анатомии выделительной системы",
+    "total": 13,
+    "single": 5,
+    "multiple": 8
+  },
+  {
+    "file": "08_fiziologicheskie_osnovy_anatomii_serdechno_sosudistoi_sistemy.json",
+    "topic": "Физиологические основы анатомии сердечно-сосудистой системы",
+    "total": 22,
+    "single": 13,
+    "multiple": 9
+  },
+  {
+    "file": "09_formennye_elementy_krovi_plazma.json",
+    "topic": "Форменные элементы крови, плазма",
+    "total": 113,
+    "single": 85,
+    "multiple": 28
+  },
+  {
+    "file": "10_bufernye_sistemy_krovi_gemostaz_i_gruppy_krovi.json",
+    "topic": "Буферные системы крови, гемостаз и группы крови",
+    "total": 72,
+    "single": 59,
+    "multiple": 13
+  },
+  {
+    "file": "11_fiziologiia_serdtsa.json",
+    "topic": "Физиология сердца",
+    "total": 52,
+    "single": 36,
+    "multiple": 16
+  },
+  {
+    "file": "12_reguliatsiia_raboty_serdtsa_metody_issledovaniia_serdtsa.json",
+    "topic": "Регуляция работы сердца, методы исследования сердца",
+    "total": 53,
+    "single": 40,
+    "multiple": 13
+  },
+  {
+    "file": "13_gemodinamika.json",
+    "topic": "Гемодинамика",
+    "total": 63,
+    "single": 39,
+    "multiple": 24
+  },
+  {
+    "file": "14_reguliatsiia_krovoobrashcheniia.json",
+    "topic": "Регуляция кровообращения",
+    "total": 21,
+    "single": 9,
+    "multiple": 12
+  },
+  {
+    "file": "15_funktsii_i_metody_issledovaniia_pochek.json",
+    "topic": "Функции и методы исследования почек",
+    "total": 93,
+    "single": 81,
+    "multiple": 12
+  },
+  {
+    "file": "16_reguliatsiia_deiatel_nosti_pochek.json",
+    "topic": "Регуляция деятельности почек",
+    "total": 45,
+    "single": 33,
+    "multiple": 12
+  },
+  {
+    "file": "17_pishchevarenie_v_polosti_rta_i_zheludke.json",
+    "topic": "Пищеварение в полости рта и желудке",
+    "total": 58,
+    "single": 49,
+    "multiple": 9
+  },
+  {
+    "file": "18_pishchevarenie_v_kishechnike.json",
+    "topic": "Пищеварение в кишечнике",
+    "total": 72,
+    "single": 56,
+    "multiple": 16
+  },
+  {
+    "file": "19_reguliatsiia_pishchevareniia.json",
+    "topic": "Регуляция пищеварения",
+    "total": 83,
+    "single": 66,
+    "multiple": 17
+  },
+  {
+    "file": "20_obmen_veshchestv.json",
+    "topic": "Обмен веществ",
+    "total": 33,
+    "single": 26,
+    "multiple": 7
+  },
+  {
+    "file": "21_obmen_energii.json",
+    "topic": "Обмен энергии",
+    "total": 51,
+    "single": 47,
+    "multiple": 4
+  },
+  {
+    "file": "22_termoreguliatsiia.json",
+    "topic": "Терморегуляция",
+    "total": 49,
+    "single": 41,
+    "multiple": 8
+  },
+  {
+    "file": "23_dykhanie_obshchie_voprosy_legochnaia_ventiliatsiia.json",
+    "topic": "Дыхание: общие вопросы, легочная вентиляция",
+    "total": 90,
+    "single": 79,
+    "multiple": 11
+  },
+  {
+    "file": "24_gazoobmen.json",
+    "topic": "Газообмен",
+    "total": 34,
+    "single": 33,
+    "multiple": 1
+  },
+  {
+    "file": "25_gemoglobin_i_ego_svoistva.json",
+    "topic": "Гемоглобин и его свойства",
+    "total": 39,
+    "single": 33,
+    "multiple": 6
+  },
+  {
+    "file": "26_reguliatsiia_dykhaniia.json",
+    "topic": "Регуляция дыхания",
+    "total": 41,
+    "single": 36,
+    "multiple": 5
+  },
+  {
+    "file": "27_obshchaia_endokrinologiia_gipotalamo_gipofizarnaia_sistema.json",
+    "topic": "Общая эндокринология, гипоталамо-гипофизарная система",
+    "total": 36,
+    "single": 23,
+    "multiple": 13
+  },
+  {
+    "file": "28_chastnaia_endokrinologiia.json",
+    "topic": "Частная эндокринология",
+    "total": 61,
+    "single": 48,
+    "multiple": 13
+  },
+  {
+    "file": "29_vozbudimost_i_ee_otsenka.json",
+    "topic": "Возбудимость и ее оценка",
+    "total": 89,
+    "single": 76,
+    "multiple": 13
+  },
+  {
+    "file": "30_nerv_i_sinaps.json",
+    "topic": "Нерв и синапс",
+    "total": 49,
+    "single": 37,
+    "multiple": 12
+  },
+  {
+    "file": "31_fiziologiia_myshts.json",
+    "topic": "Физиология мышц",
+    "total": 48,
+    "single": 44,
+    "multiple": 4
+  },
+  {
+    "file": "32_obshchaia_fiziologiia_tsns_svoistva_neironov_nervnye_tsentry_printsipy_koordinatsionnoi_deiatel_nosti.json",
+    "topic": "Общая физиология ЦНС: свойства нейронов, нервные центры, принципы координационной деятельности",
+    "total": 48,
+    "single": 37,
+    "multiple": 11
+  },
+  {
+    "file": "33_obshchaia_fiziologiia_tsns_refleks_tormozhenie_v_tsns.json",
+    "topic": "Общая физиология ЦНС: рефлекс, торможение в ЦНС",
+    "total": 52,
+    "single": 39,
+    "multiple": 13
+  },
+  {
+    "file": "34_chastnaia_fiziologiia_tsns.json",
+    "topic": "Частная физиология ЦНС",
+    "total": 88,
+    "single": 69,
+    "multiple": 19
+  },
+  {
+    "file": "35_vegetativnaia_nervnaia_sistema.json",
+    "topic": "Вегетативная нервная система",
+    "total": 86,
+    "single": 61,
+    "multiple": 25
+  },
+  {
+    "file": "36_obshchaia_fiziologiia_analizatorov.json",
+    "topic": "Общая физиология анализаторов",
+    "total": 57,
+    "single": 44,
+    "multiple": 13
+  },
+  {
+    "file": "37_poverkhnostnaia_chuvstvitel_nost_obonianie_vkusovoi_analizatory.json",
+    "topic": "Поверхностная чувствительность, обоняние, вкусовой анализаторы",
+    "total": 20,
+    "single": 13,
+    "multiple": 7
+  },
+  {
+    "file": "38_bolevaia_chuvstvitel_nost.json",
+    "topic": "Болевая чувствительность",
+    "total": 20,
+    "single": 16,
+    "multiple": 4
+  },
+  {
+    "file": "39_zritel_nyi_analizator.json",
+    "topic": "Зрительный анализатор",
+    "total": 73,
+    "single": 55,
+    "multiple": 18
+  },
+  {
+    "file": "40_slukhovoi_i_vestibuliarnyi_analizatory.json",
+    "topic": "Слуховой и вестибулярный анализаторы",
+    "total": 32,
+    "single": 23,
+    "multiple": 9
+  },
+  {
+    "file": "41_vysshaia_nervnaia_deiatel_nost_uslovnyi_refleks_dinamicheskii_stereotip.json",
+    "topic": "Высшая нервная деятельность, условный рефлекс, динамический стереотип",
+    "total": 30,
+    "single": 18,
+    "multiple": 12
+  },
+  {
+    "file": "42_tipy_vnd_pamiat_son_funktsional_nye_sistemy_povedeniia.json",
+    "topic": "Типы ВНД, память, сон, функциональные системы поведения",
+    "total": 80,
+    "single": 52,
+    "multiple": 28
+  },
+  {
+    "file": "43_osnovy_adaptivnoi_fiziologii.json",
+    "topic": "Основы адаптивной физиологии",
+    "total": 88,
+    "single": 67,
+    "multiple": 21
+  },
+  {
+    "file": "44_osnovy_vozrastnoi_fiziologii.json",
+    "topic": "Основы возрастной физиологии",
+    "total": 253,
+    "single": 161,
+    "multiple": 92
+  }
+]

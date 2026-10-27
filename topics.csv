@@ -1,0 +1,45 @@
+﻿file,topic,total,single,multiple,firstId,lastId
+01_membrany_formy_transporta.json,"Мембраны, формы транспорта",18,11,7,1,18
+02_retseptory.json,Рецепторы,19,6,13,19,37
+03_kletka_tkani.json,"Клетка, ткани",23,13,10,38,60
+04_fiziologicheskie_osnovy_anatomii_oporno_dvigatel_nogo_apparata.json,Физиологические основы анатомии опорно-двигательного аппарата,86,40,46,61,146
+05_fiziologicheskie_osnovy_anatomii_dykhatel_noi_sistemy.json,Физиологические основы анатомии дыхательной системы,11,3,8,147,157
+06_fiziologicheskie_osnovy_anatomii_zhkt.json,Физиологические основы анатомии ЖКТ,39,23,16,158,196
+07_fiziologicheskie_osnovy_anatomii_vydelitel_noi_sistemy.json,Физиологические основы анатомии выделительной системы,13,5,8,197,209
+08_fiziologicheskie_osnovy_anatomii_serdechno_sosudistoi_sistemy.json,Физиологические основы анатомии сердечно-сосудистой системы,22,13,9,210,231
+09_formennye_elementy_krovi_plazma.json,"Форменные элементы крови, плазма",113,85,28,232,344
+10_bufernye_sistemy_krovi_gemostaz_i_gruppy_krovi.json,"Буферные системы крови, гемостаз и группы крови",72,59,13,345,416
+11_fiziologiia_serdtsa.json,Физиология сердца,52,36,16,417,468
+12_reguliatsiia_raboty_serdtsa_metody_issledovaniia_serdtsa.json,"Регуляция работы сердца, методы исследования сердца",53,40,13,469,521
+13_gemodinamika.json,Гемодинамика,63,39,24,522,584
+14_reguliatsiia_krovoobrashcheniia.json,Регуляция кровообращения,21,9,12,585,605
+15_funktsii_i_metody_issledovaniia_pochek.json,Функции и методы исследования почек,93,81,12,606,698
+16_reguliatsiia_deiatel_nosti_pochek.json,Регуляция деятельности почек,45,33,12,699,743
+17_pishchevarenie_v_polosti_rta_i_zheludke.json,Пищеварение в полости рта и желудке,58,49,9,744,801
+18_pishchevarenie_v_kishechnike.json,Пищеварение в кишечнике,72,56,16,802,873
+19_reguliatsiia_pishchevareniia.json,Регуляция пищеварения,83,66,17,874,956
+20_obmen_veshchestv.json,Обмен веществ,33,26,7,957,989
+21_obmen_energii.json,Обмен энергии,51,47,4,990,1040
+22_termoreguliatsiia.json,Терморегуляция,49,41,8,1041,1089
+23_dykhanie_obshchie_voprosy_legochnaia_ventiliatsiia.json,"Дыхание: общие вопросы, легочная вентиляция",90,79,11,1090,1179
+24_gazoobmen.json,Газообмен,34,33,1,1180,1213
+25_gemoglobin_i_ego_svoistva.json,Гемоглобин и его свойства,39,33,6,1214,1252
+26_reguliatsiia_dykhaniia.json,Регуляция дыхания,41,36,5,1253,1293
+27_obshchaia_endokrinologiia_gipotalamo_gipofizarnaia_sistema.json,"Общая эндокринология, гипоталамо-гипофизарная система",36,23,13,1294,1329
+28_chastnaia_endokrinologiia.json,Частная эндокринология,61,48,13,1330,1390
+29_vozbudimost_i_ee_otsenka.json,Возбудимость и ее оценка,89,76,13,1391,1479
+30_nerv_i_sinaps.json,Нерв и синапс,49,37,12,1480,1528
+31_fiziologiia_myshts.json,Физиология мышц,48,44,4,1529,1576
+32_obshchaia_fiziologiia_tsns_svoistva_neironov_nervnye_tsentry_printsipy_koordinatsionnoi_deiatel_nosti.json,"Общая физиология ЦНС: свойства нейронов, нервные центры, принципы координационной деятельности",48,37,11,1577,1624
+33_obshchaia_fiziologiia_tsns_refleks_tormozhenie_v_tsns.json,"Общая физиология ЦНС: рефлекс, торможение в ЦНС",52,39,13,1625,1676
+34_chastnaia_fiziologiia_tsns.json,Частная физиология ЦНС,88,69,19,1677,1764
+35_vegetativnaia_nervnaia_sistema.json,Вегетативная нервная система,86,61,25,1765,1850
+36_obshchaia_fiziologiia_analizatorov.json,Общая физиология анализаторов,57,44,13,1851,1907
+37_poverkhnostnaia_chuvstvitel_nost_obonianie_vkusovoi_analizatory.json,"Поверхностная чувствительность, обоняние, вкусовой анализаторы",20,13,7,1908,1927
+38_bolevaia_chuvstvitel_nost.json,Болевая чувствительность,20,16,4,1928,1947
+39_zritel_nyi_analizator.json,Зрительный анализатор,73,55,18,1948,2020
+40_slukhovoi_i_vestibuliarnyi_analizatory.json,Слуховой и вестибулярный анализаторы,32,23,9,2021,2052
+41_vysshaia_nervnaia_deiatel_nost_uslovnyi_refleks_dinamicheskii_stereotip.json,"Высшая нервная деятельность, условный рефлекс, динамический стереотип",30,18,12,2053,2082
+42_tipy_vnd_pamiat_son_funktsional_nye_sistemy_povedeniia.json,"Типы ВНД, память, сон, функциональные системы поведения",80,52,28,2083,2162
+43_osnovy_adaptivnoi_fiziologii.json,Основы адаптивной физиологии,88,67,21,2163,2250
+44_osnovy_vozrastnoi_fiziologii.json,Основы возрастной физиологии,253,161,92,2251,2503
