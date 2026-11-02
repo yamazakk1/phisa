@@ -189,9 +189,12 @@ function renderStudy() {
     const correct = question.correctAnswers.includes(option.id);
     const resultClass = state.revealed ? (correct ? ' correct' : chosen ? ' chosen-wrong' : '') : '';
     return `<label class="answer-option${resultClass}${state.revealed ? ' locked' : ''}"><input type="${isMultiple ? 'checkbox' : 'radio'}" name="answer" value="${option.id}" ${chosen ? 'checked' : ''} ${state.revealed ? 'disabled' : ''}><span>${escapeHTML(option.text)}</span>${state.revealed && correct ? '<span class="answer-check" aria-hidden="true">✓</span>' : ''}</label>`;
-  }).join('')}</div><div class="question-actions"><span class="feedback ${state.revealed ? state.wasCorrect ? 'good' : 'bad' : ''}" id="feedback">${state.revealed ? state.wasCorrect ? '<span class="feedback-icon" aria-hidden="true">✓</span><span>Верно!</span>' : `<span class="feedback-icon" aria-hidden="true">×</span><span><strong>Неверно</strong><small>Правильный ответ: ${answerText}</small></span>` : ''}</span><button class="primary-button" type="${state.revealed ? 'button' : 'submit'}" id="answerButton">${state.revealed ? 'Следующий вопрос' : 'Проверить ответ'} <span aria-hidden="true">→</span></button></div></form></article>`;
+  }).join('')}</div><div class="question-actions"><span class="feedback ${state.revealed ? state.wasCorrect ? 'good' : 'bad' : ''}" id="feedback">${state.revealed ? state.wasCorrect ? '<span class="feedback-icon" aria-hidden="true">✓</span><span>Верно!</span>' : `<span class="feedback-icon" aria-hidden="true">×</span><span><strong>${state.chosen.length ? 'Неверно' : 'Ответ показан'}</strong><small>Правильный ответ: ${answerText}</small></span>` : ''}</span><div class="answer-buttons">${state.revealed ? '' : '<button class="reveal-button" type="button" id="revealButton">Показать ответ</button>'}<button class="primary-button" type="${state.revealed ? 'button' : 'submit'}" id="answerButton">${state.revealed ? 'Следующий вопрос' : 'Проверить ответ'} <span aria-hidden="true">→</span></button></div></div></form></article>`;
   if (state.revealed) $('answerButton').addEventListener('click', chooseQuestion);
-  else $('answerForm').addEventListener('submit', submitAnswer);
+  else {
+    $('answerForm').addEventListener('submit', submitAnswer);
+    $('revealButton').addEventListener('click', revealAnswer);
+  }
 }
 
 function submitAnswer(event) {
@@ -205,6 +208,16 @@ function submitAnswer(event) {
   const question = questions.get(state.currentId);
   const correctAnswers = [...question.correctAnswers].sort((a,b) => a-b);
   const correct = chosen.length === correctAnswers.length && chosen.every((id, index) => id === correctAnswers[index]);
+  recordAnswer(chosen, correct);
+}
+
+function revealAnswer() {
+  recordAnswer([], false);
+}
+
+function recordAnswer(chosen, correct) {
+  if (state.revealed || state.currentId === null) return;
+  const question = questions.get(state.currentId);
   if (state.deck === 'new') {
     state.remaining = state.remaining.filter((id) => id !== question.id);
     state.attempted += 1;
