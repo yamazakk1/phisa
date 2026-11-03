@@ -8,8 +8,8 @@
   <title>Физа — тренажёр по физиологии</title>
   <link rel="icon" href="favicon.svg" type="image/svg+xml" />
   <link rel="stylesheet" href="styles.css?v=20261027-2" />
-  <link rel="stylesheet" href="theme.css?v=20261102-1" />
-  <script defer src="app.js?v=20261103-1"></script>
+  <link rel="stylesheet" href="theme.css?v=20261103-2" />
+  <script defer src="app.js?v=20261103-2"></script>
 </head>
 <body>
   <div class="shell">
@@ -35,7 +35,8 @@
           <label class="topic-search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.3"/><path d="m15.5 15.5 5 5"/></svg><input id="topicSearch" type="search" placeholder="Найти тему" autocomplete="off" aria-label="Поиск по темам"></label>
           <div class="selection-summary"><span id="selectedSummary">Выбрано 0 тем</span><span id="questionSummary">0 вопросов</span></div>
           <div id="topicList" class="topic-list" aria-label="Темы"></div>
-          <div class="setup-footer"><p>В колоде вопросы выбранных тем перемешиваются случайным образом.</p><button id="createButton" class="primary-button" type="button" disabled>Сформировать колоду <span aria-hidden="true">→</span></button></div>
+          <fieldset class="question-order"><legend>Порядок вопросов</legend><label><input type="radio" name="questionOrder" value="sequential"><span>По порядку</span></label><label><input type="radio" name="questionOrder" value="random" checked><span>Случайно</span></label></fieldset>
+          <div class="setup-footer"><p>По порядку — как в методичке. Случайно — для повторения.</p><button id="createButton" class="primary-button" type="button" disabled>Сформировать колоду <span aria-hidden="true">→</span></button></div>
         </div>
       </section>
 

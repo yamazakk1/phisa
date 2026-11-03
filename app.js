@@ -155,7 +155,7 @@ async function loadQuestions(files) {
 
 function chooseQuestion() {
   const pile = state.deck === 'new' ? state.remaining : state.errors;
-  state.currentId = pile.length ? randomId(pile) : null;
+  state.currentId = pile.length ? (state.orderMode === 'sequential' ? Math.min(...pile) : randomId(pile)) : null;
   state.optionOrder = state.currentId === null ? [] : shuffledOptionIds(questions.get(state.currentId).options);
   state.revealed = false;
   state.chosen = [];
@@ -250,11 +250,12 @@ function recordAnswer(chosen, correct) {
 
 async function createDeck() {
   const files = selectedFiles();
+  const orderMode = document.querySelector('input[name="questionOrder"]:checked').value;
   $('createButton').disabled = true;
   $('createButton').textContent = 'Загружаем вопросы…';
   try {
     await loadQuestions(files);
-    state = {selected: files, total: questions.size, remaining: [...questions.keys()], errors: [], attempted: 0, correct: 0, deck: 'new', currentId: null, revealed: false, chosen: [], wasCorrect: null};
+    state = {selected: files, orderMode, total: questions.size, remaining: [...questions.keys()], errors: [], attempted: 0, correct: 0, deck: 'new', currentId: null, revealed: false, chosen: [], wasCorrect: null};
     chooseQuestion();
     window.scrollTo(0, 0);
   } catch (error) {
@@ -270,6 +271,7 @@ function finishDeck() {
   questions.clear();
   save();
   $('topicList').querySelectorAll('input').forEach((input) => { input.checked = false; });
+  document.querySelector('input[name="questionOrder"][value="random"]').checked = true;
   updateSelection();
   setView(false);
   window.scrollTo(0, 0);
@@ -301,6 +303,7 @@ async function init() {
       if (Array.isArray(parsed.selected) && Array.isArray(parsed.remaining) && Array.isArray(parsed.errors)) {
         await loadQuestions(parsed.selected);
         state = parsed;
+        if (state.orderMode !== 'sequential') state.orderMode = 'random';
         if (state.currentId !== null && !questions.has(state.currentId)) state.currentId = null;
         renderStudy();
       }
