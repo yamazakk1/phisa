@@ -1,11 +1,48 @@
 const STORAGE_KEY = 'phisa-deck-v1';
 const THEME_KEY = 'phisa-theme-v1';
+const HISTORY_KEY = 'phisa-history-v1';
 const $ = (id) => document.getElementById(id);
 const escapeHTML = (value) => String(value).replace(/[&<>"']/g, (char) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
 
 let topics = [];
 let questions = new Map();
 let state = null;
+let history = {recent: [], mistakes: []};
+let setupMode = 'topics';
+
+function readHistory() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(HISTORY_KEY));
+    const maxId = topics.reduce((sum, topic) => sum + topic.total, 0);
+    for (const kind of ['recent', 'mistakes']) {
+      if (!Array.isArray(saved?.[kind])) continue;
+      const seen = new Set();
+      history[kind] = saved[kind].filter((entry) => {
+        if (!Number.isInteger(entry?.id) || entry.id < 1 || entry.id > maxId || !Number.isInteger(entry.streak) || seen.has(entry.id)) return false;
+        seen.add(entry.id);
+        return true;
+      }).slice(0, 200).map(({id, streak}) => ({id, streak: Math.max(0, Math.min(2, streak))}));
+    }
+  } catch (error) {
+    console.warn('Не удалось прочитать историю вопросов', error);
+  }
+}
+
+function updateHistoryList(kind, id, correct, addIfMissing) {
+  const list = history[kind];
+  const index = list.findIndex((entry) => entry.id === id);
+  if (index < 0 && !addIfMissing) return;
+  const streak = correct ? (index < 0 ? 0 : list[index].streak) + 1 : 0;
+  if (index >= 0) list.splice(index, 1);
+  if (streak < 3) list.unshift({id, streak});
+  if (list.length > 200) list.length = 200;
+}
+
+function rememberAnswer(id, correct) {
+  updateHistoryList('recent', id, correct, true);
+  updateHistoryList('mistakes', id, correct, !correct);
+  localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+}
 
 function setTheme(theme) {
   document.documentElement.dataset.theme = theme;
@@ -136,7 +173,52 @@ function selectedFiles() {
   return [...$('topicList').querySelectorAll('input:checked')].map((input) => input.value);
 }
 
+function historyIds(kind) {
+  return history[kind].map((entry) => entry.id);
+}
+
+function filesForIds(ids) {
+  const files = [];
+  let firstId = 1;
+  for (const topic of topics) {
+    const lastId = firstId + topic.total - 1;
+    if (ids.some((id) => id >= firstId && id <= lastId)) files.push(topic.file);
+    firstId = lastId + 1;
+  }
+  return files;
+}
+
+function refreshHistoryModes() {
+  for (const [kind, buttonId, countId] of [['recent', 'recentMode', 'recentModeCount'], ['mistakes', 'mistakesMode', 'mistakesModeCount']]) {
+    const count = history[kind].length;
+    $(buttonId).hidden = count < 10;
+    $(countId).textContent = count;
+    if (count < 10 && setupMode === kind) setupMode = 'topics';
+  }
+  setSetupMode(setupMode);
+}
+
+function setSetupMode(mode) {
+  setupMode = mode;
+  for (const [name, buttonId] of [['topics', 'topicsMode'], ['recent', 'recentMode'], ['mistakes', 'mistakesMode']]) {
+    $(buttonId).setAttribute('aria-pressed', String(mode === name));
+  }
+  $('topicSetup').hidden = mode !== 'topics';
+  $('historySetup').hidden = mode === 'topics';
+  if (mode !== 'topics') {
+    $('historySetupTitle').textContent = mode === 'recent' ? 'Недавно решали' : 'Были ошибки';
+    $('historySetupText').textContent = mode === 'recent' ? 'Вопросы из твоей недавней практики.' : 'Вопросы, в которых раньше были ошибки.';
+  }
+  updateSelection();
+}
+
 function updateSelection() {
+  if (setupMode !== 'topics') {
+    const count = history[setupMode].length;
+    $('historySetupCount').textContent = `${count} вопросов в колоде`;
+    $('createButton').disabled = count < 10;
+    return;
+  }
   const files = selectedFiles();
   const total = topics.filter((topic) => files.includes(topic.file)).reduce((sum, topic) => sum + topic.total, 0);
   $('selectedSummary').textContent = `Выбрано ${files.length} из ${topics.length} тем`;
@@ -244,19 +326,21 @@ function recordAnswer(chosen, correct) {
   state.chosen = chosen;
   state.wasCorrect = correct;
   state.revealed = true;
+  rememberAnswer(question.id, correct);
   save();
   renderStudy();
 }
 
 async function createDeck() {
-  const files = selectedFiles();
+  const source = setupMode;
+  const initialIds = source === 'topics' ? null : historyIds(source);
+  const files = source === 'topics' ? selectedFiles() : filesForIds(initialIds);
   const orderMode = document.querySelector('input[name="questionOrder"]:checked').value;
   $('createButton').disabled = true;
   $('createButton').textContent = 'Загружаем вопросы…';
   try {
     await loadQuestions(files);
-    state = {selected: files, orderMode, total: questions.size, remaining: [...questions.keys()], errors: [], attempted: 0, correct: 0, deck: 'new', currentId: null, revealed: false, chosen: [], wasCorrect: null};
-    chooseQuestion();
+    startDeck(files, orderMode, initialIds, source);
     window.scrollTo(0, 0);
   } catch (error) {
     alert(`Не удалось создать колоду. ${error.message}`);
@@ -266,6 +350,18 @@ async function createDeck() {
   }
 }
 
+function startDeck(selected, orderMode, initialIds = null, source = 'topics') {
+  const ids = initialIds ? initialIds.filter((id) => questions.has(id)) : [...questions.keys()];
+  state = {selected, orderMode, source, initialIds: ids, total: ids.length, remaining: [...ids], errors: [], attempted: 0, correct: 0, deck: 'new', currentId: null, revealed: false, chosen: [], wasCorrect: null};
+  chooseQuestion();
+}
+
+function restartDeck() {
+  if (!state) return;
+  startDeck(state.selected, state.orderMode, state.initialIds, state.source);
+  window.scrollTo(0, 0);
+}
+
 function finishDeck() {
   state = null;
   questions.clear();
@@ -273,6 +369,7 @@ function finishDeck() {
   $('topicList').querySelectorAll('input').forEach((input) => { input.checked = false; });
   document.querySelector('input[name="questionOrder"][value="random"]').checked = true;
   updateSelection();
+  refreshHistoryModes();
   setView(false);
   window.scrollTo(0, 0);
 }
@@ -289,6 +386,10 @@ async function init() {
   $('topicSearch').addEventListener('input', filterTopics);
   $('clearAllButton').addEventListener('click', () => { $('topicList').querySelectorAll('input').forEach((input) => { input.checked = false; }); updateSelection(); });
   $('createButton').addEventListener('click', createDeck);
+  $('topicsMode').addEventListener('click', () => setSetupMode('topics'));
+  $('recentMode').addEventListener('click', () => setSetupMode('recent'));
+  $('mistakesMode').addEventListener('click', () => setSetupMode('mistakes'));
+  $('restartButton').addEventListener('click', restartDeck);
   $('finishButton').addEventListener('click', finishDeck);
   $('newTab').addEventListener('click', () => switchDeck('new'));
   $('errorsTab').addEventListener('click', () => switchDeck('errors'));
@@ -296,7 +397,9 @@ async function init() {
     const response = await fetch('topics.json');
     if (!response.ok) throw new Error('Не удалось загрузить список тем');
     topics = await response.json();
+    readHistory();
     renderTopics();
+    refreshHistoryModes();
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved) {
       const parsed = JSON.parse(saved);
