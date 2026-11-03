@@ -42,6 +42,15 @@ function randomId(ids) {
   return ids[Math.floor(Math.random() * ids.length)];
 }
 
+function shuffledOptionIds(options) {
+  const ids = options.map((option) => option.id);
+  for (let i = ids.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [ids[i], ids[j]] = [ids[j], ids[i]];
+  }
+  return ids;
+}
+
 function setView(studying) {
   $('setupView').hidden = studying;
   $('studyView').hidden = !studying;
@@ -147,6 +156,7 @@ async function loadQuestions(files) {
 function chooseQuestion() {
   const pile = state.deck === 'new' ? state.remaining : state.errors;
   state.currentId = pile.length ? randomId(pile) : null;
+  state.optionOrder = state.currentId === null ? [] : shuffledOptionIds(questions.get(state.currentId).options);
   state.revealed = false;
   state.chosen = [];
   state.wasCorrect = null;
@@ -183,13 +193,18 @@ function renderStudy() {
   }
   const question = questions.get(state.currentId);
   const isMultiple = question.type === 'multiple';
-  const answerText = question.options.filter((option) => question.correctAnswers.includes(option.id)).map((option) => option.id).join(', ');
-  area.innerHTML = `<article class="question-card"><div class="question-meta"><span>ВОПРОС №${question.id} · ${state.deck === 'new' ? 'НОВАЯ КОЛОДА' : 'ПОВТОР ОШИБОК'}</span><span>Стр. ${question.sourcePage}</span></div><h2>${escapeHTML(question.question)}</h2><p class="question-hint">${isMultiple ? 'Выбери все правильные варианты' : 'Выбери один правильный вариант'}</p><form id="answerForm"><div class="answers">${question.options.map((option) => {
+  if (!Array.isArray(state.optionOrder) || state.optionOrder.length !== question.options.length || !question.options.every((option) => state.optionOrder.includes(option.id))) {
+    state.optionOrder = shuffledOptionIds(question.options);
+    save();
+  }
+  const optionsById = new Map(question.options.map((option) => [option.id, option]));
+  const displayedOptions = state.optionOrder.map((id) => optionsById.get(id));
+  area.innerHTML = `<article class="question-card"><div class="question-meta"><span>ВОПРОС №${question.id} · ${state.deck === 'new' ? 'НОВАЯ КОЛОДА' : 'ПОВТОР ОШИБОК'}</span><span>Стр. ${question.sourcePage}</span></div><h2>${escapeHTML(question.question)}</h2><p class="question-hint">${isMultiple ? 'Выбери все правильные варианты' : 'Выбери один правильный вариант'}</p><form id="answerForm"><div class="answers">${displayedOptions.map((option) => {
     const chosen = state.chosen.includes(option.id);
     const correct = question.correctAnswers.includes(option.id);
     const resultClass = state.revealed ? (correct ? ' correct' : chosen ? ' chosen-wrong' : '') : '';
     return `<label class="answer-option${resultClass}${state.revealed ? ' locked' : ''}"><input type="${isMultiple ? 'checkbox' : 'radio'}" name="answer" value="${option.id}" ${chosen ? 'checked' : ''} ${state.revealed ? 'disabled' : ''}><span>${escapeHTML(option.text)}</span>${state.revealed && correct ? '<span class="answer-check" aria-hidden="true">✓</span>' : ''}</label>`;
-  }).join('')}</div><div class="question-actions"><span class="feedback ${state.revealed ? state.wasCorrect ? 'good' : 'bad' : ''}" id="feedback">${state.revealed ? state.wasCorrect ? '<span class="feedback-icon" aria-hidden="true">✓</span><span>Верно!</span>' : `<span class="feedback-icon" aria-hidden="true">×</span><span><strong>${state.chosen.length ? 'Неверно' : 'Ответ показан'}</strong><small>Правильный ответ: ${answerText}</small></span>` : ''}</span><div class="answer-buttons">${state.revealed ? '' : '<button class="reveal-button" type="button" id="revealButton">Показать ответ</button>'}<button class="primary-button" type="${state.revealed ? 'button' : 'submit'}" id="answerButton">${state.revealed ? 'Следующий вопрос' : 'Проверить ответ'} <span aria-hidden="true">→</span></button></div></div></form></article>`;
+  }).join('')}</div><div class="question-actions"><span class="feedback ${state.revealed ? state.wasCorrect ? 'good' : 'bad' : ''}" id="feedback">${state.revealed ? state.wasCorrect ? '<span class="feedback-icon" aria-hidden="true">✓</span><span>Верно!</span>' : `<span class="feedback-icon" aria-hidden="true">×</span><span><strong>${state.chosen.length ? 'Неверно' : 'Ответ показан'}</strong><small>Правильные варианты выделены зелёным</small></span>` : ''}</span><div class="answer-buttons">${state.revealed ? '' : '<button class="reveal-button" type="button" id="revealButton">Показать ответ</button>'}<button class="primary-button" type="${state.revealed ? 'button' : 'submit'}" id="answerButton">${state.revealed ? 'Следующий вопрос' : 'Проверить ответ'} <span aria-hidden="true">→</span></button></div></div></form></article>`;
   if (state.revealed) $('answerButton').addEventListener('click', chooseQuestion);
   else {
     $('answerForm').addEventListener('submit', submitAnswer);
