@@ -1,6 +1,7 @@
 const STORAGE_KEY = 'phisa-deck-v1';
 const THEME_KEY = 'phisa-theme-v1';
 const HISTORY_KEY = 'phisa-history-v1';
+const FAVORITES_KEY = 'phisa-favorites-v1';
 const $ = (id) => document.getElementById(id);
 const escapeHTML = (value) => String(value).replace(/[&<>"']/g, (char) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
 
@@ -8,6 +9,7 @@ let topics = [];
 let questions = new Map();
 let state = null;
 let history = {recent: [], mistakes: []};
+let favorites = [];
 let setupMode = 'topics';
 
 function readHistory() {
@@ -42,6 +44,34 @@ function rememberAnswer(id, correct) {
   updateHistoryList('recent', id, correct, true);
   updateHistoryList('mistakes', id, correct, !correct);
   localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+}
+
+function readFavorites() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(FAVORITES_KEY));
+    if (!Array.isArray(saved)) return;
+    const maxId = topics.reduce((sum, topic) => sum + topic.total, 0);
+    favorites = [...new Set(saved.filter((id) => Number.isInteger(id) && id >= 1 && id <= maxId))].slice(0, 200);
+  } catch (error) {
+    console.warn('Не удалось прочитать избранное', error);
+  }
+}
+
+function toggleFavorite(id) {
+  const index = favorites.indexOf(id);
+  if (index >= 0) favorites.splice(index, 1);
+  else {
+    if (favorites.length >= 200) {
+      alert('В избранном уже 200 вопросов. Убери один из них, чтобы добавить новый.');
+      return;
+    }
+    favorites.unshift(id);
+  }
+  localStorage.setItem(FAVORITES_KEY, JSON.stringify(favorites));
+  const button = $('favoriteButton');
+  const selected = favorites.includes(id);
+  button.setAttribute('aria-pressed', String(selected));
+  button.textContent = selected ? '★ В избранном' : '☆ В избранное';
 }
 
 function setTheme(theme) {
@@ -174,6 +204,7 @@ function selectedFiles() {
 }
 
 function historyIds(kind) {
+  if (kind === 'favorites') return [...favorites];
   return history[kind].map((entry) => entry.id);
 }
 
@@ -189,34 +220,35 @@ function filesForIds(ids) {
 }
 
 function refreshHistoryModes() {
-  for (const [kind, buttonId, countId] of [['recent', 'recentMode', 'recentModeCount'], ['mistakes', 'mistakesMode', 'mistakesModeCount']]) {
-    const count = history[kind].length;
-    $(buttonId).hidden = count < 10;
+  for (const [kind, buttonId, countId, minimum] of [['recent', 'recentMode', 'recentModeCount', 10], ['mistakes', 'mistakesMode', 'mistakesModeCount', 10], ['favorites', 'favoritesMode', 'favoritesModeCount', 1]]) {
+    const count = kind === 'favorites' ? favorites.length : history[kind].length;
+    $(buttonId).hidden = count < minimum;
     $(countId).textContent = count;
-    if (count < 10 && setupMode === kind) setupMode = 'topics';
+    if (count < minimum && setupMode === kind) setupMode = 'topics';
   }
   setSetupMode(setupMode);
 }
 
 function setSetupMode(mode) {
   setupMode = mode;
-  for (const [name, buttonId] of [['topics', 'topicsMode'], ['recent', 'recentMode'], ['mistakes', 'mistakesMode']]) {
+  for (const [name, buttonId] of [['topics', 'topicsMode'], ['recent', 'recentMode'], ['mistakes', 'mistakesMode'], ['favorites', 'favoritesMode']]) {
     $(buttonId).setAttribute('aria-pressed', String(mode === name));
   }
   $('topicSetup').hidden = mode !== 'topics';
   $('historySetup').hidden = mode === 'topics';
   if (mode !== 'topics') {
-    $('historySetupTitle').textContent = mode === 'recent' ? 'Недавно решали' : 'Были ошибки';
-    $('historySetupText').textContent = mode === 'recent' ? 'Вопросы из твоей недавней практики.' : 'Вопросы, в которых раньше были ошибки.';
+    $('historySetupTitle').textContent = mode === 'recent' ? 'Недавно решали' : mode === 'mistakes' ? 'Были ошибки' : 'Избранное';
+    $('historySetupText').textContent = mode === 'recent' ? 'Вопросы из твоей недавней практики.' : mode === 'mistakes' ? 'Вопросы, в которых раньше были ошибки.' : 'Вопросы, которые ты отметил флажком.';
+    $('historySetupHint').hidden = mode === 'favorites';
   }
   updateSelection();
 }
 
 function updateSelection() {
   if (setupMode !== 'topics') {
-    const count = history[setupMode].length;
+    const count = setupMode === 'favorites' ? favorites.length : history[setupMode].length;
     $('historySetupCount').textContent = `${count} вопросов в колоде`;
-    $('createButton').disabled = count < 10;
+    $('createButton').disabled = count < (setupMode === 'favorites' ? 1 : 10);
     return;
   }
   const files = selectedFiles();
@@ -304,12 +336,13 @@ function renderStudy() {
   const shown = isReview ? review : state;
   const optionsById = new Map(question.options.map((option) => [option.id, option]));
   const displayedOptions = shown.optionOrder.map((id) => optionsById.get(id));
-  area.innerHTML = `<article class="question-card"><div class="question-meta"><span>ВОПРОС №${question.id} · ${shown.deck === 'new' ? 'НОВАЯ КОЛОДА' : 'ПОВТОР ОШИБОК'}</span><span>Стр. ${question.sourcePage}</span></div><h2>${escapeHTML(question.question)}</h2><p class="question-hint">${isMultiple ? 'Выбери все правильные варианты' : 'Выбери один правильный вариант'}</p><form id="answerForm"><div class="answers">${displayedOptions.map((option) => {
+  area.innerHTML = `<article class="question-card"><div class="question-meta"><span>ВОПРОС №${question.id} · ${shown.deck === 'new' ? 'НОВАЯ КОЛОДА' : 'ПОВТОР ОШИБОК'}</span><div class="question-meta-end"><span>Стр. ${question.sourcePage}</span><button id="favoriteButton" class="favorite-button" type="button" aria-pressed="${favorites.includes(question.id)}">${favorites.includes(question.id) ? '★ В избранном' : '☆ В избранное'}</button></div></div><h2>${escapeHTML(question.question)}</h2><p class="question-hint">${isMultiple ? 'Выбери все правильные варианты' : 'Выбери один правильный вариант'}</p><form id="answerForm"><div class="answers">${displayedOptions.map((option) => {
     const chosen = shown.chosen.includes(option.id);
     const correct = question.correctAnswers.includes(option.id);
     const resultClass = shown.revealed ? (correct ? ' correct' : chosen ? ' chosen-wrong' : '') : '';
     return `<label class="answer-option${resultClass}${shown.revealed ? ' locked' : ''}"><input type="${isMultiple ? 'checkbox' : 'radio'}" name="answer" value="${option.id}" ${chosen ? 'checked' : ''} ${shown.revealed ? 'disabled' : ''}><span>${escapeHTML(option.text)}</span>${shown.revealed && correct ? '<span class="answer-check" aria-hidden="true">✓</span>' : ''}</label>`;
   }).join('')}</div><div class="question-actions"><span class="feedback ${shown.revealed ? shown.wasCorrect ? 'good' : 'bad' : ''}" id="feedback">${shown.revealed ? shown.wasCorrect ? '<span class="feedback-icon" aria-hidden="true">✓</span><span>Верно!</span>' : `<span class="feedback-icon" aria-hidden="true">×</span><span><strong>${shown.chosen.length ? 'Неверно' : 'Ответ показан'}</strong><small>Правильные варианты выделены зелёным</small></span>` : ''}</span><div class="answer-buttons">${isReview ? '' : shown.revealed ? '' : '<button class="reveal-button" type="button" id="revealButton">Показать ответ</button>'}${isReview ? '' : `<button class="primary-button" type="${shown.revealed ? 'button' : 'submit'}" id="answerButton">${shown.revealed ? 'Следующий вопрос' : 'Проверить ответ'} <span aria-hidden="true">→</span></button>`}</div></div></form></article>`;
+  $('favoriteButton').addEventListener('click', () => toggleFavorite(question.id));
   if (isReview) return;
   if (state.revealed) $('answerButton').addEventListener('click', chooseQuestion);
   else {
@@ -415,6 +448,7 @@ async function init() {
   $('topicsMode').addEventListener('click', () => setSetupMode('topics'));
   $('recentMode').addEventListener('click', () => setSetupMode('recent'));
   $('mistakesMode').addEventListener('click', () => setSetupMode('mistakes'));
+  $('favoritesMode').addEventListener('click', () => setSetupMode('favorites'));
   $('restartButton').addEventListener('click', restartDeck);
   $('finishButton').addEventListener('click', finishDeck);
   $('newTab').addEventListener('click', () => switchDeck('new'));
@@ -426,6 +460,7 @@ async function init() {
     if (!response.ok) throw new Error('Не удалось загрузить список тем');
     topics = await response.json();
     readHistory();
+    readFavorites();
     renderTopics();
     refreshHistoryModes();
     const saved = localStorage.getItem(STORAGE_KEY);
