@@ -220,12 +220,18 @@ function filesForIds(ids) {
 }
 
 function refreshHistoryModes() {
+  let hasSavedQuestions = false;
   for (const [kind, buttonId, countId, minimum] of [['recent', 'recentMode', 'recentModeCount', 10], ['mistakes', 'mistakesMode', 'mistakesModeCount', 10], ['favorites', 'favoritesMode', 'favoritesModeCount', 1]]) {
     const count = kind === 'favorites' ? favorites.length : history[kind].length;
     $(buttonId).hidden = count < minimum;
     $(countId).textContent = count;
+    const clearButton = $({recent: 'clearRecentButton', mistakes: 'clearMistakesButton', favorites: 'clearFavoritesButton'}[kind]);
+    clearButton.hidden = count === 0;
+    clearButton.querySelector('span').textContent = count;
+    hasSavedQuestions ||= count > 0;
     if (count < minimum && setupMode === kind) setupMode = 'topics';
   }
+  $('collectionManagement').hidden = !hasSavedQuestions;
   setSetupMode(setupMode);
 }
 
@@ -242,6 +248,17 @@ function setSetupMode(mode) {
     $('historySetupHint').hidden = mode === 'favorites';
   }
   updateSelection();
+}
+
+function clearCollection(kind) {
+  if (kind === 'favorites') {
+    favorites = [];
+    localStorage.removeItem(FAVORITES_KEY);
+  } else if (kind === 'recent' || kind === 'mistakes') {
+    history[kind] = [];
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+  } else return;
+  refreshHistoryModes();
 }
 
 function updateSelection() {
@@ -449,6 +466,9 @@ async function init() {
   $('recentMode').addEventListener('click', () => setSetupMode('recent'));
   $('mistakesMode').addEventListener('click', () => setSetupMode('mistakes'));
   $('favoritesMode').addEventListener('click', () => setSetupMode('favorites'));
+  $('clearRecentButton').addEventListener('click', () => clearCollection('recent'));
+  $('clearMistakesButton').addEventListener('click', () => clearCollection('mistakes'));
+  $('clearFavoritesButton').addEventListener('click', () => clearCollection('favorites'));
   $('restartButton').addEventListener('click', restartDeck);
   $('finishButton').addEventListener('click', finishDeck);
   $('newTab').addEventListener('click', () => switchDeck('new'));
