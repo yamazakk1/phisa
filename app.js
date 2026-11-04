@@ -242,6 +242,7 @@ function chooseQuestion() {
   state.revealed = false;
   state.chosen = [];
   state.wasCorrect = null;
+  state.reviewIndex = null;
   save();
   renderStudy();
 }
@@ -250,6 +251,19 @@ function switchDeck(deck) {
   if (state.deck === deck) return;
   state.deck = deck;
   chooseQuestion();
+}
+
+function moveReview(direction) {
+  const log = state.answerLog || [];
+  if (state.reviewIndex === null && !state.revealed) {
+    state.chosen = [...document.querySelectorAll('#answerForm input:checked')].map((input) => Number(input.value));
+  }
+  const index = state.reviewIndex === null || state.reviewIndex === undefined ? log.length : state.reviewIndex;
+  const next = index + direction;
+  if (next < 0 || next > log.length) return;
+  state.reviewIndex = next === log.length ? null : next;
+  save();
+  renderStudy();
 }
 
 function renderStudy() {
@@ -266,27 +280,37 @@ function renderStudy() {
     tab.setAttribute('aria-selected', String(state.deck === deck));
   }
   const area = $('questionArea');
-  if (state.currentId === null || !questions.has(state.currentId)) {
+  const log = state.answerLog || [];
+  if (!Number.isInteger(state.reviewIndex) || state.reviewIndex < 0 || state.reviewIndex >= log.length) state.reviewIndex = null;
+  const isReview = state.reviewIndex !== null;
+  const review = isReview ? log[state.reviewIndex] : null;
+  $('reviewNavigation').hidden = log.length === 0;
+  $('previousQuestionButton').disabled = !log.length || state.reviewIndex === 0;
+  $('nextQuestionButton').hidden = !isReview;
+  $('reviewPosition').textContent = isReview ? `Просмотр ответа ${state.reviewIndex + 1} из ${log.length}` : '';
+  if (!isReview && (state.currentId === null || !questions.has(state.currentId))) {
     const isNew = state.deck === 'new';
     const otherCount = isNew ? state.errors.length : state.remaining.length;
     area.innerHTML = `<div class="empty-card"><div class="empty-icon">✳</div><h2>${isNew ? 'Новые вопросы закончились' : 'Стопка ошибок пуста'}</h2><p>${isNew ? 'Ты прошёл все вопросы выбранных тем.' : 'Все ошибочные вопросы решены верно.'}${otherCount ? ' Можешь перейти в другую стопку.' : ' Можно завершить колоду и выбрать темы заново.'}</p>${otherCount ? `<button class="primary-button" id="goOtherButton" type="button">Перейти к ${isNew ? 'ошибкам' : 'новым вопросам'} →</button>` : ''}</div>`;
     $('goOtherButton')?.addEventListener('click', () => switchDeck(isNew ? 'errors' : 'new'));
     return;
   }
-  const question = questions.get(state.currentId);
+  const question = questions.get(isReview ? review.id : state.currentId);
   const isMultiple = question.type === 'multiple';
-  if (!Array.isArray(state.optionOrder) || state.optionOrder.length !== question.options.length || !question.options.every((option) => state.optionOrder.includes(option.id))) {
+  if (!isReview && (!Array.isArray(state.optionOrder) || state.optionOrder.length !== question.options.length || !question.options.every((option) => state.optionOrder.includes(option.id)))) {
     state.optionOrder = shuffledOptionIds(question.options);
     save();
   }
+  const shown = isReview ? review : state;
   const optionsById = new Map(question.options.map((option) => [option.id, option]));
-  const displayedOptions = state.optionOrder.map((id) => optionsById.get(id));
-  area.innerHTML = `<article class="question-card"><div class="question-meta"><span>ВОПРОС №${question.id} · ${state.deck === 'new' ? 'НОВАЯ КОЛОДА' : 'ПОВТОР ОШИБОК'}</span><span>Стр. ${question.sourcePage}</span></div><h2>${escapeHTML(question.question)}</h2><p class="question-hint">${isMultiple ? 'Выбери все правильные варианты' : 'Выбери один правильный вариант'}</p><form id="answerForm"><div class="answers">${displayedOptions.map((option) => {
-    const chosen = state.chosen.includes(option.id);
+  const displayedOptions = shown.optionOrder.map((id) => optionsById.get(id));
+  area.innerHTML = `<article class="question-card"><div class="question-meta"><span>ВОПРОС №${question.id} · ${shown.deck === 'new' ? 'НОВАЯ КОЛОДА' : 'ПОВТОР ОШИБОК'}</span><span>Стр. ${question.sourcePage}</span></div><h2>${escapeHTML(question.question)}</h2><p class="question-hint">${isMultiple ? 'Выбери все правильные варианты' : 'Выбери один правильный вариант'}</p><form id="answerForm"><div class="answers">${displayedOptions.map((option) => {
+    const chosen = shown.chosen.includes(option.id);
     const correct = question.correctAnswers.includes(option.id);
-    const resultClass = state.revealed ? (correct ? ' correct' : chosen ? ' chosen-wrong' : '') : '';
-    return `<label class="answer-option${resultClass}${state.revealed ? ' locked' : ''}"><input type="${isMultiple ? 'checkbox' : 'radio'}" name="answer" value="${option.id}" ${chosen ? 'checked' : ''} ${state.revealed ? 'disabled' : ''}><span>${escapeHTML(option.text)}</span>${state.revealed && correct ? '<span class="answer-check" aria-hidden="true">✓</span>' : ''}</label>`;
-  }).join('')}</div><div class="question-actions"><span class="feedback ${state.revealed ? state.wasCorrect ? 'good' : 'bad' : ''}" id="feedback">${state.revealed ? state.wasCorrect ? '<span class="feedback-icon" aria-hidden="true">✓</span><span>Верно!</span>' : `<span class="feedback-icon" aria-hidden="true">×</span><span><strong>${state.chosen.length ? 'Неверно' : 'Ответ показан'}</strong><small>Правильные варианты выделены зелёным</small></span>` : ''}</span><div class="answer-buttons">${state.revealed ? '' : '<button class="reveal-button" type="button" id="revealButton">Показать ответ</button>'}<button class="primary-button" type="${state.revealed ? 'button' : 'submit'}" id="answerButton">${state.revealed ? 'Следующий вопрос' : 'Проверить ответ'} <span aria-hidden="true">→</span></button></div></div></form></article>`;
+    const resultClass = shown.revealed ? (correct ? ' correct' : chosen ? ' chosen-wrong' : '') : '';
+    return `<label class="answer-option${resultClass}${shown.revealed ? ' locked' : ''}"><input type="${isMultiple ? 'checkbox' : 'radio'}" name="answer" value="${option.id}" ${chosen ? 'checked' : ''} ${shown.revealed ? 'disabled' : ''}><span>${escapeHTML(option.text)}</span>${shown.revealed && correct ? '<span class="answer-check" aria-hidden="true">✓</span>' : ''}</label>`;
+  }).join('')}</div><div class="question-actions"><span class="feedback ${shown.revealed ? shown.wasCorrect ? 'good' : 'bad' : ''}" id="feedback">${shown.revealed ? shown.wasCorrect ? '<span class="feedback-icon" aria-hidden="true">✓</span><span>Верно!</span>' : `<span class="feedback-icon" aria-hidden="true">×</span><span><strong>${shown.chosen.length ? 'Неверно' : 'Ответ показан'}</strong><small>Правильные варианты выделены зелёным</small></span>` : ''}</span><div class="answer-buttons">${isReview ? '' : shown.revealed ? '' : '<button class="reveal-button" type="button" id="revealButton">Показать ответ</button>'}${isReview ? '' : `<button class="primary-button" type="${shown.revealed ? 'button' : 'submit'}" id="answerButton">${shown.revealed ? 'Следующий вопрос' : 'Проверить ответ'} <span aria-hidden="true">→</span></button>`}</div></div></form></article>`;
+  if (isReview) return;
   if (state.revealed) $('answerButton').addEventListener('click', chooseQuestion);
   else {
     $('answerForm').addEventListener('submit', submitAnswer);
@@ -326,6 +350,8 @@ function recordAnswer(chosen, correct) {
   state.chosen = chosen;
   state.wasCorrect = correct;
   state.revealed = true;
+  if (!Array.isArray(state.answerLog)) state.answerLog = [];
+  state.answerLog.push({id: question.id, deck: state.deck, chosen: [...chosen], wasCorrect: correct, revealed: true, optionOrder: [...state.optionOrder]});
   rememberAnswer(question.id, correct);
   save();
   renderStudy();
@@ -352,7 +378,7 @@ async function createDeck() {
 
 function startDeck(selected, orderMode, initialIds = null, source = 'topics') {
   const ids = initialIds ? initialIds.filter((id) => questions.has(id)) : [...questions.keys()];
-  state = {selected, orderMode, source, initialIds: ids, total: ids.length, remaining: [...ids], errors: [], attempted: 0, correct: 0, deck: 'new', currentId: null, revealed: false, chosen: [], wasCorrect: null};
+  state = {selected, orderMode, source, initialIds: ids, total: ids.length, remaining: [...ids], errors: [], attempted: 0, correct: 0, deck: 'new', currentId: null, revealed: false, chosen: [], wasCorrect: null, answerLog: [], reviewIndex: null};
   chooseQuestion();
 }
 
@@ -393,6 +419,8 @@ async function init() {
   $('finishButton').addEventListener('click', finishDeck);
   $('newTab').addEventListener('click', () => switchDeck('new'));
   $('errorsTab').addEventListener('click', () => switchDeck('errors'));
+  $('previousQuestionButton').addEventListener('click', () => moveReview(-1));
+  $('nextQuestionButton').addEventListener('click', () => moveReview(1));
   try {
     const response = await fetch('topics.json');
     if (!response.ok) throw new Error('Не удалось загрузить список тем');
