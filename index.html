@@ -8,8 +8,8 @@
   <title>Физа — тренажёр по физиологии</title>
   <link rel="icon" href="favicon.svg" type="image/svg+xml" />
   <link rel="stylesheet" href="styles.css?v=20261027-2" />
-  <link rel="stylesheet" href="theme.css?v=20261104-3" />
-  <script defer src="app.js?v=20261104-3"></script>
+  <link rel="stylesheet" href="theme.css?v=20261104-4" />
+  <script defer src="app.js?v=20261104-4"></script>
 </head>
 <body>
   <div class="shell">
@@ -29,7 +29,6 @@
 
         <div class="setup-card">
           <div class="setup-modes" aria-label="Источник вопросов"><button id="topicsMode" class="setup-mode" type="button" aria-pressed="true">По темам</button><button id="recentMode" class="setup-mode setup-mode-special" type="button" aria-pressed="false" hidden>Недавно решали <span id="recentModeCount">0</span></button><button id="mistakesMode" class="setup-mode setup-mode-special" type="button" aria-pressed="false" hidden>Были ошибки <span id="mistakesModeCount">0</span></button><button id="favoritesMode" class="setup-mode setup-mode-special" type="button" aria-pressed="false" hidden>★ Избранное <span id="favoritesModeCount">0</span></button></div>
-          <div id="collectionManagement" class="collection-management" hidden><span>Очистить накопленные вопросы:</span><button id="clearRecentButton" type="button" hidden>Недавние (<span>0</span>) ×</button><button id="clearMistakesButton" type="button" hidden>С ошибками (<span>0</span>) ×</button><button id="clearFavoritesButton" type="button" hidden>Избранное (<span>0</span>) ×</button></div>
           <div id="topicSetup">
           <div class="section-heading">
             <div><span class="step-number">01 / ВЫБОР</span><h2>Темы для колоды</h2></div>
@@ -39,7 +38,7 @@
           <div class="selection-summary"><span id="selectedSummary">Выбрано 0 тем</span><span id="questionSummary">0 вопросов</span></div>
           <div id="topicList" class="topic-list" aria-label="Темы"></div>
           </div>
-          <div id="historySetup" class="history-setup" hidden><h2 id="historySetupTitle"></h2><p id="historySetupText"></p><strong id="historySetupCount"></strong><small id="historySetupHint">После трёх верных ответов подряд вопрос исчезает из этого списка.</small></div>
+          <div id="historySetup" class="history-setup" hidden><h2 id="historySetupTitle"></h2><p id="historySetupText"></p><strong id="historySetupCount"></strong><small id="historySetupHint">После трёх верных ответов подряд вопрос исчезает из этого списка.</small><button id="clearCollectionButton" class="clear-collection-button" type="button">Очистить эту колоду</button></div>
           <fieldset class="question-order"><legend>Порядок вопросов</legend><label><input type="radio" name="questionOrder" value="sequential"><span>По порядку</span></label><label><input type="radio" name="questionOrder" value="random" checked><span>Случайно</span></label></fieldset>
           <div class="setup-footer"><p>По порядку — как в методичке. Случайно — для повторения.</p><button id="createButton" class="primary-button" type="button" disabled>Сформировать колоду <span aria-hidden="true">→</span></button></div>
         </div>
